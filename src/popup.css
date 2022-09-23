@@ -1,0 +1,17 @@
+body {
+    background-color: #212529 !important;
+    font-family: 'VT323', serif !important;
+    color: white !important;
+    font-size: 18px;
+}
+
+
+#the-canvas {
+    direction: ltr;
+}
+
+
+div#canvas-container {
+    width: 450px;
+    height: 350px;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'wasm-unsafe-eval'; object-src 'self'">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-abc123'">
+    <meta http-equiv="Access-Control-Allow-Origin" content="/**">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
+    <link rel="stylesheet" href="./src/popup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/css/bootstrap.min.css">
+    <title>Medicard PDF to Image Converter</title>
+</head>
+<script nonce="abc123" src="./src/pdf.js"></script>
+
+<body>
+    <header>
+        <nav class="navbar navbar-dark">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#">Medicard - PDF to Image Converter</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        
+        <div class="container bg-dark">
+            <div class="mb-2">
+                <label for="formGroupExampleInput" class="form-label">CHOOSE PDF FILE</label>
+                <input class="form-control form-control-sm" type="file" name="pdfinput" accept="application/pdf" placeholder="select a pdf file" id="pdf">
+            </div>
+            <div class="mb-2">
+                <div class="progress" style="height:10px;">
+                    <div id="progress" class="progress-bar" style="width:0%;"></div>
+                </div>
+            </div>
+            <div class="mb-2">
+                <div id="canvas-container">
+                    No loaded pdf.
+                </div>
+            </div>
+            <div class="mb-4 bg-dark">
+                <div class="d-grid gap-2 mt-2">
+                    <button id="img-link" disabled class="btn btn-sm btn-success">No loaded pdf.</button>
+                    <button id="clear" class="btn btn-sm btn-light visually-hidden">CLEAR</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+<span class="mx-3 text-white-50 position-absolute bottom-0 end-0">
+    Created By <a href="mailto:nmcasupanan@medicardphils.com" class="text-white">@nmcasupanan</a>
+</span>
+<!-- Author: Nino Casupanan -->
+<!-- Reference: PDFJS https://github.com/mozilla/pdf.js -->
+<script nonce="abc123" src="./src/popup.js"></script>
+</html>

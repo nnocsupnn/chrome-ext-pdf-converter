@@ -1,7 +1,7 @@
 {
     "name": "Medicard PDF to IMG Converter",
     "description": "A tool created for convertion of pdf file for Medicard Philippiens.",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "author": "Nino Casupanan",
     "action": {
         "default_title": "PDF to IMAGE Converter",

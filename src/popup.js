@@ -12,15 +12,22 @@ let isToggledToImgToPdf = false
 
 // Toggle
 toggle.onchange = evt => {
-    clear()
     isToggledToImgToPdf = evt.target.checked
+    clear()
     if (isToggledToImgToPdf) {
         pdfx.setAttribute('accept', 'image/png, image/jpeg');
         document.getElementById('navbar-title').innerText = "Medicard - Image to PDF Converter"
+
+        canvasContainer.innerText = 'No loaded image.'
+        linkHref.innerText = 'No loaded image.'
     } else {
         pdfx.setAttribute('accept', 'application/pdf');
         document.getElementById('navbar-title').innerText = "Medicard - PDF to Image Converter"
+
+        canvasContainer.innerText = 'No loaded pdf.'
+        linkHref.innerText = 'No loaded pdf.'
     }
+
 }
 
 function timeout(ms) {
@@ -105,14 +112,13 @@ pdfx.onchange = function (ev) {
 clearBtn.addEventListener('click', clear)
 
 function clear(evt) {
-    canvasContainer.innerHTML = ''
     canvasContainer.style.overflow = canvasContainer.style.overflow = 'hidden'
     progressBar.style.width = '0%'
     pdfx.value = ''
     clearBtn.classList.add('visually-hidden')
-    canvasContainer.innerText = 'No loaded pdf.'
+    canvasContainer.innerText = isToggledToImgToPdf ? 'No loaded image.' : 'No loaded pdf.'
+    linkHref.innerText = isToggledToImgToPdf ? 'No loaded image.' : 'No loaded pdf.'
     linkHref.setAttribute('disabled', true)
-    linkHref.innerText = 'No loaded pdf.'
     images = []
 }
 

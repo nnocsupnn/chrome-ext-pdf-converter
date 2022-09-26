@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'wasm-unsafe-eval'; object-src 'self'">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-abc123'">
     <meta http-equiv="Access-Control-Allow-Origin" content="/**">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
     <link rel="stylesheet" href="./src/popup.css">
@@ -35,6 +33,11 @@
                 </div>
             </div>
             <div class="mb-2">
+                <div class="progress" style="height:1px;">
+                    <div id="progress-download" class="progress-bar" style="width:0%;background-color: green;"></div>
+                </div>
+            </div>
+            <div class="mb-2">
                 <div id="canvas-container">
                     No loaded pdf.
                 </div>
@@ -53,5 +56,6 @@
 </span>
 <!-- Author: Nino Casupanan -->
 <!-- Reference: PDFJS https://github.com/mozilla/pdf.js -->
+<script nonce="abc123" src="./src/fileSaver.js"></script>
 <script nonce="abc123" src="./src/popup.js"></script>
 </html>

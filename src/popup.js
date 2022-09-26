@@ -5,6 +5,7 @@ const linkHref = document.getElementById('img-link')
 const pdfx = document.getElementById('pdf');
 const canvasContainer = document.getElementById('canvas-container')
 const progressBar = document.getElementById('progress');
+const progressBarDownload = document.getElementById('progress-download');
 const clearBtn = document.getElementById('clear');
 
 function timeout(ms) {
@@ -16,7 +17,30 @@ const getPercentageOfCompletion = (current, total) => parseFloat((parseFloat(cur
 linkHref.onclick = evt => {
     const downloadSize = images.length
     const yn = confirm(`You are downloading ${downloadSize}, click okay to download.`)
-    console.log(yn)
+    if (yn) {
+        if (images.length < 1) {
+            console.error('Nothing to download.')
+            return
+        }
+
+        console.info("Downloading..");
+        // Trigger click to download the link
+        for (let i = 0; i < images.length; i++) {
+            const imgUrl = images[i]
+            const byteCharacters = atob(imgUrl.base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+
+            const blob = new Blob([byteArray], {type: 'image/jpeg'});
+
+            saveAs(blob, imgUrl.fileName)
+            progressBarDownload.style.width = `${getPercentageOfCompletion((i + 1), images.length)}%`
+        }
+        console.info(`${images.length} downloaded.`)
+    }
 }
 
 pdfx.onclick = evt => clear(true);
@@ -43,7 +67,6 @@ pdfx.onchange = function (ev) {
                 for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
                     // Fetch the first page
                     await pdf.getPage(pageNumber).then(async page => {
-                        console.log(page)
                         console.log(`Page ${pageNumber} loaded`);
 
                         let scale = 0.8;
@@ -65,10 +88,7 @@ pdfx.onchange = function (ev) {
                         let renderTask = page.render(renderContext);
 
                         await renderTask.promise.then(() => {
-                            const lnk = document.createElement('a')
-                            lnk.href = canvas.toDataURL('image/jpeg')
-                            lnk.download =`${file.name.split('.')[0]}-${pageNumber}.jpg`
-                            images.push(lnk)
+                            images.push({ base64: canvas.toDataURL("image/jpeg").split(';base64,')[1], fileName: `${file.name.split('.')[0]}-page-${pageNumber}.jpg` })
                         });
 
                         canvasContainer.appendChild(canvas)

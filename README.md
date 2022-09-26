@@ -3,3 +3,5 @@ This tool was intended to help clinic users in our company to convert pdf to ima
 
 # Plugin used
 https://github.com/mozilla/pdf.js
+https://github.com/parallax/jsPDF
+https://github.com/Stuk/jszip

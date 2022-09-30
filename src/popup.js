@@ -1,6 +1,6 @@
 // Loaded via <script> tag, create shortcut to access PDF.js exports.
 const pdfjsLib = window["pdfjs-dist/build/pdf"];
-let images = []
+let images = [], downloadables = []
 const linkHref = document.getElementById('img-link')
 const pdfx = document.getElementById('pdf');
 const canvasContainer = document.getElementById('canvas-container')
@@ -8,26 +8,64 @@ const progressBar = document.getElementById('progress');
 const progressBarDownload = document.getElementById('progress-download');
 const clearBtn = document.getElementById('clear');
 const toggle = document.getElementById('converterSwitch')
+const imgtopdfsettings = document.getElementById('imgtopdfsettings');
+
+const orientationSelection = document.getElementById('select-orientation')
+const formatSelection = document.getElementById('select-format')
+const encryptionPassword = document.getElementById('encryptionPassword')
+const encryptCheckbox = document.getElementById('encrypt')
+
+let shouldEncrypt = false
 let isToggledToImgToPdf = false
 
 // Toggle
 toggle.onchange = evt => {
     isToggledToImgToPdf = evt.target.checked
+    
     clear()
+
+    encryptCheckbox.checked = localStorage.getItem('shouldEncrypt') == 'true' ? true : false
+    encryptionPassword.value = localStorage.getItem('encryptionPassword') || ''
+    if (encryptCheckbox.checked) encryptionPassword.removeAttribute('disabled')
+    else encryptionPassword.setAttribute('disabled', true)
+
     if (isToggledToImgToPdf) {
         pdfx.setAttribute('accept', 'image/png, image/jpeg');
-        document.getElementById('navbar-title').innerText = "Medicard - Image to PDF Converter"
+        document.getElementById('navbar-title').innerText = "Image/PDF Converter"
 
         canvasContainer.innerText = 'No loaded image.'
         linkHref.innerText = 'No loaded image.'
+
+        document.getElementById('imgtopdfsettings').style = ''
+        document.getElementById('pdfpwsettings').style = 'display:none;'
     } else {
         pdfx.setAttribute('accept', 'application/pdf');
-        document.getElementById('navbar-title').innerText = "Medicard - PDF to Image Converter"
+        document.getElementById('navbar-title').innerText = "PDF/Image Converter"
 
         canvasContainer.innerText = 'No loaded pdf.'
         linkHref.innerText = 'No loaded pdf.'
+
+        document.getElementById('imgtopdfsettings').style = 'display:none;'
+        document.getElementById('pdfpwsettings').style = ''
     }
 
+    imgtopdfsettings.style.display = isToggledToImgToPdf ? '' : 'none'
+}
+
+
+encryptCheckbox.onchange = evt => {
+    shouldEncrypt = evt.target.checked
+    localStorage.setItem('shouldEncrypt', shouldEncrypt)
+    if (shouldEncrypt) encryptionPassword.removeAttribute('disabled') 
+    else {
+        encryptionPassword.setAttribute('disabled', true)
+    }
+}
+
+
+function showModal (id) {
+    let myModal = new bootstrap.Modal(`#${id}`);
+    myModal.show();
 }
 
 function timeout(ms) {
@@ -52,28 +90,14 @@ linkHref.onclick = evt => {
         }
 
         const zip = new JSZip();
-        
+
         for (let i = 0; i < images.length; i++) {
             try {
-                const imgUrl = JSON.parse(images[i])
-                if (imgUrl == undefined) {
-                    console.error("No data found in storage.")
-                    continue
-                }
+                const imgSrc = images[i]
 
-                const byteCharacters = atob(imgUrl.base64)
-                const byteNumbers = new Array(byteCharacters.length)
+                zip.file(imgSrc.fileName, imgSrc.blob)
 
-                for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i)
-                
-                const byteArray = new Uint8Array(byteNumbers)
-
-                const blob = new Blob([byteArray], {type: imgUrl.type })
-
-                console.log(imgUrl.fileName)
-                zip.file(imgUrl.fileName, blob)
-
-                zipFileName = imgUrl.mainFileName
+                zipFileName = imgSrc.mainFileName
 
                 // saveAs(blob, imgUrl.fileName)
 
@@ -93,11 +117,7 @@ pdfx.onchange = function (ev) {
     const file = pdfx.files[0]
     const reader = new FileReader()
     
-    if (!isToggledToImgToPdf) {
-        reader.readAsArrayBuffer(file)
-    } else {
-        reader.readAsDataURL(file)
-    }
+    reader.readAsDataURL(file)
 
     reader.onload = function () {
         if (!isToggledToImgToPdf) {
@@ -128,7 +148,21 @@ function clear(evt) {
  * @param {*} file 
  */
 const imgToPdf = (reader, file) => {
-    let doc = new window.jspdf.jsPDF('l', 'mm', 'a4');
+    let options = {
+        orientation: orientationSelection.value,
+        unit: "mm",
+        format: formatSelection.value
+    }
+   
+    if (shouldEncrypt) {
+        options.encryption = {
+            userPassword: encryptionPassword.value,
+            ownerPassword: encryptionPassword.value,
+            userPermissions: ["print", "modify", "copy", "annot-forms"]
+        }
+    }
+
+    let doc = new window.jspdf.jsPDF(options);
     const imgTypes = {
         'image/png': 'PNG',
         'image/jpeg': 'JPEG'
@@ -145,15 +179,16 @@ const imgToPdf = (reader, file) => {
         linkHref.removeAttribute('disabled')
         linkHref.innerText = "Please wait.."
     }, () => {
-        const jData = JSON.stringify({ base64: doc.output('dataurlstring').split(';base64,')[1], fileName: `${file.name.split('.')[0]}.pdf`, mainFileName: file.name.split('.')[0], type: 'application/pdf' }),
-        fileName = `${file.name.split('.')[0]}.pdf`;
+        const jData = { fileName: `${file.name.split('.')[0]}.pdf`, mainFileName: file.name.split('.')[0] }
+
+        jData.blob = doc.output('blob')
 
         images.push(jData)
     }, () => {
         linkHref.innerText = `${images.length} file converted, Click here to download.`
         linkHref.className = 'btn btn-sm btn-success'
         clearBtn.classList.remove('visually-hidden')
-    })
+    }, encryptionPassword.value)
 }
 
 
@@ -163,6 +198,7 @@ const imgToPdf = (reader, file) => {
  * @param {*} file 
  */
 function pdfToImg(reader, file) {
+    const password = document.getElementById('pdfpassword').value
     loadToCanvas(reader.result, () => {
         canvasContainer.innerText = ''
         canvasContainer.style.overflowY = canvasContainer.style.overflowX = 'scroll'
@@ -170,27 +206,25 @@ function pdfToImg(reader, file) {
         linkHref.removeAttribute('disabled')
         linkHref.innerText = "Please wait.."
     }, ({ canvas, pageNumber }) => {
-        console.log(canvas.toDataURL("image/jpeg").split(';base64,'))
-        const jData = JSON.stringify({ base64: canvas.toDataURL("image/jpeg").split(';base64,')[1], fileName: `${file.name.split('.')[0]}-page-${pageNumber}.jpg`, mainFileName: file.name.split('.')[0], type: 'image/jpeg' }),
-        fileName = `${file.name.split('.')[0]}-page-${pageNumber}.jpg`;
+        const jData = { fileName: `${file.name.split('.')[0]}-page-${pageNumber}.jpg`, mainFileName: file.name.split('.')[0] }
+
+        jData.blob = convertToBlob(canvas.toDataURL("image/jpeg").split(';base64,')[1], 'image/jpeg')
 
         images.push(jData)
     }, () => {
         linkHref.innerText = `${images.length} file converted, Click here to download.`
         linkHref.className = 'btn btn-sm btn-success'
         clearBtn.classList.remove('visually-hidden')
-    })
+    }, password)
 }
 
-function loadToCanvas(uristring, preCallback = () => {}, onProcessCallback = () => {}, postCallback = () => {}) {
-    const loadingTask = pdfjsLib.getDocument(uristring)
+function loadToCanvas(uristring, preCallback = () => {}, onProcessCallback = () => {}, postCallback = () => {}, password = undefined) {
+    const loadingTask = pdfjsLib.getDocument({ url: uristring, password: password })
 
     preCallback()
     loadingTask.promise.then(async pdf => {
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
             await pdf.getPage(pageNumber).then(async page => {
-                console.log(`Page ${pageNumber} loaded`);
-
                 let scale = 1.5;
                 let viewport = page.getViewport({ scale: scale });
 
@@ -225,7 +259,20 @@ function loadToCanvas(uristring, preCallback = () => {}, onProcessCallback = () 
     reason => {
         // PDF loading error
         clear()
-        alert(`Loading Error: Either the pdf selected is corrupted or invalid.`);
+        alert(`Loading Error: ${reason ? reason : 'Either the pdf selected is corrupted or invalid.'}`);
     })
 
+}
+
+
+function convertToBlob(uriString, type) {
+    const byteCharacters = atob(uriString)
+    const byteNumbers = new Array(byteCharacters.length)
+
+    for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i)
+    
+    const byteArray = new Uint8Array(byteNumbers)
+
+    const blob = new Blob([byteArray], {type: type })
+    return blob
 }

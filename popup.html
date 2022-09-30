@@ -8,18 +8,24 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
     <link rel="stylesheet" href="src/popup.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/css/bootstrap.min.css">
-    <title>Medicard PDF to Image Converter</title>
+    <title>PDF/Image Converter</title>
 </head>
 <script src="src/jszip.js"></script>
 <script src="src/jspdf.js"></script>
 <script src="src/pdf.js"></script>
+<script src="src/bootstrap.js"></script>
 
 <body>
     <header>
         <nav class="navbar navbar-dark">
             <div class="container-fluid">
-              <a class="navbar-brand" href="#" id="navbar-title">Medicard - PDF to Image Converter</a>
-              
+              <a class="navbar-brand" href="#" id="navbar-title">PDF/Image Converter</a>
+                <p id="imgtopdfsettings" style="display: none" class="position-absolute top-0 end-0 mx-2 mt-2 badge bg-primary text-wrap">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#myModal" class="text-white" style="text-decoration: none;">PDF Settings</a>
+                </p>
+                <p id="pdfpwsettings" class="position-absolute top-0 end-0 mx-2 mt-2 badge bg-primary text-wrap">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#passwordSettings" class="text-white" style="text-decoration: none;">PDF Password</a>
+                </p>
             </div>
         </nav>
     </header>
@@ -55,6 +61,59 @@
                 </div>
             </div>
         </div>
+
+        <!-- MODAL -->
+        <div class="modal modal-sm" id="myModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-black-50">PDF Settings</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="select-orientation" class="text-black-50">Orientation</label>
+                    <select class="form-select form-select-sm" id="select-orientation" aria-label="Default select example">
+                        <option value="p">Portrait</option>
+                        <option value="l" selected>Landscape</option>
+                    </select>
+                    <label for="select-format" class="text-black-50">Format</label>
+                    <select class="form-select form-select-sm" id="select-format" aria-label="Default select example">
+                        <option value="a4" selected>A4</option>
+                        <option value="letter">Letter</option>
+                        <option value="legal">Legal</option>
+                        <option value="tabloid">Tabloid</option>
+                        <option value="junior-legal">Junior Legal</option>
+                    </select>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="encrypt">
+                        <label class="form-check-label text-black-50" for="encrypt">
+                          Encrypt?
+                        </label>
+                    </div>
+                    <input class="form-control" type="text" name="encryptionPassword" id="encryptionPassword" disabled>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" id="closeSettings" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-sm btn-primary" id="saveSettings">Save</button>
+                </div>
+              </div>
+            </div>
+        </div>
+        <!-- PASSWORD SETTINGS -->
+        <div class="modal modal-sm" id="passwordSettings" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-black-50">PDF Password</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="password" class="text-black-50">Password</label>
+                    <input type="password" class="form-control" name="password" id="pdfpassword">
+                </div>
+              </div>
+            </div>
+        </div>
     </main>
 </body>
 <span class="mx-3 text-white-50 position-absolute bottom-0 end-0">
@@ -63,5 +122,6 @@
 <!-- Author: Nino Casupanan -->
 <!-- Reference: PDFJS https://github.com/mozilla/pdf.js -->
 <script src="src/fileSaver.js"></script>
+<script src="src/modal.js"></script>
 <script src="src/popup.js"></script>
 </html>

@@ -15,3 +15,7 @@ div#canvas-container {
     width: 450px;
     height: 350px;
 }
+
+#convertOptTitle {
+    font-size: 11px;
+}

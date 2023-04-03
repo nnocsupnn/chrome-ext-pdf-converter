@@ -1,7 +1,7 @@
 {
     "name": "PDF/Image Converter",
     "description": "A tool created for convertion of pdf file for Medicard Philippines.",
-    "version": "0.1.8",
+    "version": "1.0.0",
     "author": "Nino Casupanan",
     "action": {
         "default_title": "PDF/Image Converter",

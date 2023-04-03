@@ -117,17 +117,18 @@ linkHref.onclick = evt => {
 
 pdfx.onclick = evt => clear(true);
 pdfx.onchange = function (ev) {
+    for (let i = 0; i < pdfx.files.length;i++) {
+        let file = pdfx.files[i];
+        const reader = new FileReader()
+        
+        reader.readAsDataURL(file)
 
-    const file = pdfx.files[0]
-    const reader = new FileReader()
-    
-    reader.readAsDataURL(file)
-
-    reader.onload = function () {
-        if (!isToggledToImgToPdf) {
-            pdfToImg(reader, file);
-        } else {
-            imgToPdf(reader, file)
+        reader.onload = function () {
+            if (!isToggledToImgToPdf) {
+                pdfToImg(reader, file);
+            } else {
+                imgToPdf(reader, file)
+            }
         }
     }
 }
@@ -316,6 +317,11 @@ function convertToBlob(uriString, type) {
  * @returns 
  */
 function isValidBase64(str) {
+    // data:image/png;base64,
+    // data:application/pdf;base64,
+    str = str.replace("data:image/png;base64,", "")
+    str = str.replace("data:application/pdf;base64,", "")
+
     // Check the length of the string
     if (str.length % 4 !== 0) {
       return false;

@@ -6,10 +6,28 @@ body {
 }
 
 
+.navbar {
+    background-color: #343a40;
+}
+
+#navbar-title {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+
 #the-canvas {
     direction: ltr;
 }
 
+body {
+    overflow: hidden !important;
+}
+
+
+.container {
+    margin-top: 2%;
+}
 
 div#canvas-container {
     width: 450px;
@@ -18,4 +36,56 @@ div#canvas-container {
 
 #convertOptTitle {
     font-size: 11px;
+}
+
+#canvas-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+#canvas-container canvas {
+    padding: 3px;
+    height: auto;
+}
+
+input[type="file"] {
+    padding: 10px;
+    background-color: #f2f2f2;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #444;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+input[type="file"]:hover {
+    cursor: pointer;
+    background-color: #ddd;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    background-color: #3c413c;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #3e8e41;
+}
+
+input[type="file"]::-moz-file-upload-button {
+    background-color: #4CAF50;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+input[type="file"]::-moz-file-upload-button:hover {
+    background-color: #3e8e41;
 }

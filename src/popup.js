@@ -93,6 +93,13 @@ linkHref.onclick = evt => {
             return
         }
 
+        // Only if the converted file is only 1 file. no need to zip.
+        if (images.length === 1) {
+            let file = images[0]
+            saveAs(file.blob, file.mainFileName)
+            return
+        }
+
         const zip = new JSZip();
 
         for (let i = 0; i < images.length; i++) {
@@ -201,7 +208,7 @@ const imgToPdf = (reader, file) => {
 
         images.push(jData)
     }, () => {
-        linkHref.innerText = `${images.length} file converted, Click here to download.`
+        linkHref.innerText = `${images.length} file(s) converted, Click here to download.`
         linkHref.className = 'btn btn-sm btn-success'
         clearBtn.classList.remove('visually-hidden')
     }, encryptionPassword.value)

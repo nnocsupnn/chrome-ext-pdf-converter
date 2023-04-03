@@ -8,6 +8,7 @@ const progressBar = document.getElementById('progress');
 const progressBarDownload = document.getElementById('progress-download');
 const clearBtn = document.getElementById('clear');
 const toggle = document.getElementById('converterSwitch')
+const toggleTitle = document.getElementById('convertOptTitle')
 const imgtopdfsettings = document.getElementById('imgtopdfsettings');
 
 const orientationSelection = document.getElementById('select-orientation')
@@ -25,14 +26,17 @@ toggle.onchange = evt => {
     clear()
 
     encryptCheckbox.checked = localStorage.getItem('shouldEncrypt') == 'true' ? true : false
-    encryptionPassword.value = localStorage.getItem('encryptionPassword') || ''
-    if (encryptCheckbox.checked) encryptionPassword.removeAttribute('disabled')
+    // encryptionPassword.value = localStorage.getItem('encryptionPassword') || ''
+    if (encryptCheckbox.checked) {
+        encryptionPassword.removeAttribute('disabled')
+        encryptionPassword.setAttribute('required', true)
+    }
     else encryptionPassword.setAttribute('disabled', true)
 
     if (isToggledToImgToPdf) {
         pdfx.setAttribute('accept', 'image/png, image/jpeg');
         document.getElementById('navbar-title').innerText = "Image/PDF Converter"
-
+        toggleTitle.innerText = "Switch to PDF/Image"
         canvasContainer.innerText = 'No loaded image.'
         linkHref.innerText = 'No loaded image.'
 
@@ -41,7 +45,7 @@ toggle.onchange = evt => {
     } else {
         pdfx.setAttribute('accept', 'application/pdf');
         document.getElementById('navbar-title').innerText = "PDF/Image Converter"
-
+        toggleTitle.innerText = "Switch to Image/PDF"
         canvasContainer.innerText = 'No loaded pdf.'
         linkHref.innerText = 'No loaded pdf.'
 
@@ -131,6 +135,10 @@ pdfx.onchange = function (ev) {
 
 clearBtn.addEventListener('click', clear)
 
+/**
+ * Clear inputs
+ * @param {*} evt 
+ */
 function clear(evt) {
     canvasContainer.style.overflow = canvasContainer.style.overflow = 'hidden'
     progressBar.style.width = '0%'
@@ -170,6 +178,13 @@ const imgToPdf = (reader, file) => {
 
     let width = doc.internal.pageSize.getWidth();
     let height = doc.internal.pageSize.getHeight();
+
+    // validation of base64
+    const isValid = isValidBase64(reader.result)
+    if (!isValid) {
+        alert("Catch some invalid base64 in your file. Please report this file to security team (@InformationSecurity@medicardphils.com)")
+    }
+
     doc.addImage(reader.result, imgTypes[file.type], 0, 0, width, height);
 
     loadToCanvas(doc.output('datauristring'), () => {
@@ -199,6 +214,11 @@ const imgToPdf = (reader, file) => {
  */
 function pdfToImg(reader, file) {
     const password = document.getElementById('pdfpassword').value
+    const isValid = isValidBase64(reader.result)
+    if (!isValid) {
+        alert("Catch some invalid base64 in your file. Please report this file to security team (@InformationSecurity@medicardphils.com)")
+    }
+
     loadToCanvas(reader.result, () => {
         canvasContainer.innerText = ''
         canvasContainer.style.overflowY = canvasContainer.style.overflowX = 'scroll'
@@ -218,6 +238,14 @@ function pdfToImg(reader, file) {
     }, password)
 }
 
+/**
+ * Loading to canvas
+ * @param {*} uristring 
+ * @param {*} preCallback 
+ * @param {*} onProcessCallback 
+ * @param {*} postCallback 
+ * @param {*} password 
+ */
 function loadToCanvas(uristring, preCallback = () => {}, onProcessCallback = () => {}, postCallback = () => {}, password = undefined) {
     const loadingTask = pdfjsLib.getDocument({ url: uristring, password: password })
 
@@ -264,7 +292,12 @@ function loadToCanvas(uristring, preCallback = () => {}, onProcessCallback = () 
 
 }
 
-
+/**
+ * Converting to blob
+ * @param {*} uriString 
+ * @param {*} type 
+ * @returns 
+ */
 function convertToBlob(uriString, type) {
     const byteCharacters = atob(uriString)
     const byteNumbers = new Array(byteCharacters.length)
@@ -275,4 +308,33 @@ function convertToBlob(uriString, type) {
 
     const blob = new Blob([byteArray], {type: type })
     return blob
+}
+
+/**
+ * Validating base64 string
+ * @param {*} str 
+ * @returns 
+ */
+function isValidBase64(str) {
+    // Check the length of the string
+    if (str.length % 4 !== 0) {
+      return false;
+    }
+  
+    // Check the characters in the string
+    if (/[^A-Za-z0-9+/=]/.test(str)) {
+      return false;
+    }
+  
+    // Check the number of padding characters at the end of the string
+    let paddingCount = 0;
+    for (let i = str.length - 1; str[i] === "="; i--) {
+      paddingCount++;
+    }
+    if (paddingCount > 2) {
+      return false;
+    }
+  
+    // The string is a valid Base64 encoded string
+    return true;
 }
